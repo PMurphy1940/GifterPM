@@ -1,1 +1,2 @@
 # GifterPM
+Expanded SQL assignments
