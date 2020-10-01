@@ -17,6 +17,7 @@ namespace Gifter.Models
         public string Caption { get; set; }
 
         [Required]
+        [DisplayFormat(DataFormatString = "{0:MMM dd, yyyy")]
         public DateTime DateCreated { get; set; }
 
         [Required]

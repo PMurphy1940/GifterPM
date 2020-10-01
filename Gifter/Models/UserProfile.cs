@@ -17,8 +17,10 @@ namespace Gifter.Models
         public string ImageUrl { get; set; }
 
         [Required]
+        [DisplayFormat(DataFormatString = "{0:MMM dd, yyyy")]
         public DateTime DateCreated { get; set; }
         public string Bio { get; set; }
+        public List<Post> Posts { get; set; }
 
     }
 }
