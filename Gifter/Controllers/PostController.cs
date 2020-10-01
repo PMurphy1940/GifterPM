@@ -39,6 +39,12 @@ namespace Gifter.Controllers
             return Ok(posts);
         }
 
+        [HttpGet("dynamic")]
+        public IActionResult Dynamic(string q)
+        {
+            return Ok(_postRepository.GetDynamic(q));
+        }
+
         [HttpGet("getwithcomments/{id}")]
         public IActionResult GetWithComments(int id)
         {

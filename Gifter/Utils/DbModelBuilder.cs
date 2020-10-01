@@ -9,6 +9,11 @@ namespace Gifter.Utils
 {
     public static class DbModelBuilder
     {
+        /// <summary>
+        /// Builds Post object from data reader object
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns>Instance of a Post object</returns>
         public static Post BuildPostModel(SqlDataReader reader)
         {
             Post post = new Post()
@@ -25,6 +30,12 @@ namespace Gifter.Utils
 
             return post;
         }
+
+        /// <summary>
+        /// Builds UserProfile object from data reader object
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns>Instance of a UserProfile object</returns>
         public static UserProfile BuildUserProfile(SqlDataReader reader)
         {
             var profile = new UserProfile
@@ -40,6 +51,11 @@ namespace Gifter.Utils
             return profile;
         }
 
+        /// <summary>
+        /// Builds Comment object from data reader object
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns>Instance of a Comment object</returns>
         public static Comment BuildCommentModel(SqlDataReader reader)
         {
             var comment = new Comment()

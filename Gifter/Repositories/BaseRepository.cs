@@ -38,5 +38,6 @@ namespace Gifter.Repositories
                                                             c.PostId AS CommentPostId";
         protected static string AddUserToPost => " LEFT JOIN UserProfile up ON p.UserProfileId = up.id";
         protected static string AddComment => " LEFT JOIN Comment c on c.PostId = p.id";
+        protected static string AddPostToUserProfile => "LEFT JOIN Post p ON p.UserProfileId = up.Id";
     }
 }

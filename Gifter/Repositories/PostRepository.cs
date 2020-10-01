@@ -91,7 +91,74 @@ namespace Gifter.Repositories
                 }
             }
         }
+        public List<Post> GetDynamic(string q)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    if (q == null)
+                    {
+                        q = "blank";
+                    }
+                    string[] commands = q.Split("&=");
+                    if (commands.Length == 0)
+                    {
+                        commands[0] = q;
+                    }
+                    cmd.CommandText = @"
+                                SELECT "
+                                + PostSqlCommandText;
 
+                    for (int i=0; i<commands.Length; i++)
+                    {
+                        if (commands[i] == "profile")
+                        {
+                            cmd.CommandText += ",";
+                            cmd.CommandText += UserProfileSqlCommandText;
+                        }
+                        else if (commands[i] == "comments")
+                        {
+                            cmd.CommandText += ",";
+                            cmd.CommandText += CommentSqlCommandText;
+                        }
+                    }
+
+                    cmd.CommandText += " FROM Post p";
+                    for (int i = 0; i < commands.Length; i++)
+                    {
+                        if (commands[i] == "profile")
+                        {
+                            cmd.CommandText += AddUserToPost;
+                        }
+                        else if (commands[i] == "comments")
+                        {
+                            cmd.CommandText += AddComment;
+                        }
+                    }
+                    cmd.CommandText += " ORDER BY p.DateCreated";
+ 
+
+                    var reader = cmd.ExecuteReader();
+
+                    var posts = new List<Post>();
+                    while (reader.Read())
+                    {
+                        var aPost = DbModelBuilder.BuildPostModel(reader);
+                        if (commands.Contains("profile"))
+                            {
+                                aPost.UserProfile = DbModelBuilder.BuildUserProfile(reader);
+                            }
+                        posts.Add(aPost);
+                    }
+
+                    reader.Close();
+
+                    return posts;
+                }
+            }
+        }
         //Slim down GetById
         public Post GetById(int id)
         {
@@ -282,25 +349,6 @@ namespace Gifter.Repositories
                 }
             }
         }
-        //Sql command text presets
-        private static string PostSqlCommandText => @" p.Id AS PostId, 
-                                                        p.Title, 
-                                                        p.Caption, 
-                                                        p.DateCreated AS PostDateCreated, 
-                                                        p.ImageUrl AS PostImageUrl, 
-                                                        p.UserProfileId";
-        private static string UserProfileSqlCommandText => @" up.id AS ProfileId,
-                                                                up.Name, 
-                                                                up.Bio, 
-                                                                up.Email, 
-                                                                up.DateCreated AS UserProfileDateCreated, 
-                                                                up.ImageUrl AS UserProfileImageUrl";
-        private static string CommentSqlCommandText => @" c.Id AS CommentId, 
-                                                            c.Message, 
-                                                            c.UserProfileId AS CommentUserProfileId,
-                                                            c.PostId AS CommentPostId";
-        private static string AddUserToPost => " LEFT JOIN UserProfile up ON p.UserProfileId = up.id";
-        private static string AddComment => " LEFT JOIN Comment c on c.PostId = p.id";
 
     }
 }
