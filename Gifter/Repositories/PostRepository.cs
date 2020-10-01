@@ -19,21 +19,13 @@ namespace Gifter.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                                SELECT  p.Id AS PostId, 
-                                        p.Title, 
-                                        p.Caption, 
-                                        p.DateCreated AS PostDateCreated, 
-                                        p.ImageUrl AS PostImageUrl, 
-                                        p.UserProfileId, 
-                                        up.id AS ProfileId,
-                                        up.Name, 
-                                        up.Bio, 
-                                        up.Email, 
-                                        up.DateCreated AS UserProfileDateCreated, 
-                                        up.ImageUrl AS UserProfileImageUrl
-                                FROM Post p 
-                                    LEFT JOIN UserProfile up ON p.UserProfileId = up.id
-                                ORDER BY p.DateCreated";
+                                SELECT " 
+                                    + PostSqlCommandText 
+                                    + "," 
+                                    + UserProfileSqlCommandText 
+                                    + " FROM Post p" 
+                                    + AddUserToPost
+                                    + " ORDER BY p.DateCreated";
 
                     var reader = cmd.ExecuteReader();
 
@@ -60,17 +52,16 @@ namespace Gifter.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                SELECT p.Id AS PostId, p.Title, p.Caption, p.DateCreated AS PostDateCreated,
-                       p.ImageUrl AS PostImageUrl, p.UserProfileId AS PostUserProfileId,
-
-                       up.Name, up.Bio, up.Email, up.DateCreated AS UserProfileDateCreated,
-                       up.ImageUrl AS UserProfileImageUrl,
-
-                       c.Id AS CommentId, c.Message, c.UserProfileId AS CommentUserProfileId
-                  FROM Post p
-                       LEFT JOIN UserProfile up ON p.UserProfileId = up.id
-                       LEFT JOIN Comment c on c.PostId = p.id
-              ORDER BY p.DateCreated";
+                                    SELECT "
+                                    + PostSqlCommandText
+                                    + ","
+                                    + UserProfileSqlCommandText
+                                    + ","
+                                    + CommentSqlCommandText
+                                    + " FROM Post p"
+                                    + AddUserToPost
+                                    + AddComment
+                                    + " ORDER BY p.DateCreated";
 
                     var reader = cmd.ExecuteReader();
 
@@ -82,38 +73,15 @@ namespace Gifter.Repositories
                         var existingPost = posts.FirstOrDefault(p => p.Id == postId);
                         if (existingPost == null)
                         {
-                            existingPost = new Post()
-                            {
-                                Id = postId,
-                                Title = DbUtils.GetString(reader, "Title"),
-                                Caption = DbUtils.GetString(reader, "Caption"),
-                                DateCreated = DbUtils.GetDateTime(reader, "PostDateCreated"),
-                                ImageUrl = DbUtils.GetString(reader, "PostImageUrl"),
-                                UserProfileId = DbUtils.GetInt(reader, "PostUserProfileId"),
-                                UserProfile = new UserProfile()
-                                {
-                                    Id = DbUtils.GetInt(reader, "PostUserProfileId"),
-                                    Name = DbUtils.GetString(reader, "Name"),
-                                    Email = DbUtils.GetString(reader, "Email"),
-                                    DateCreated = DbUtils.GetDateTime(reader, "UserProfileDateCreated"),
-                                    ImageUrl = DbUtils.GetString(reader, "UserProfileImageUrl"),
-                                    Bio = DbUtils.GetString(reader, "Bio")
-                                },
-                                Comments = new List<Comment>()
-                            };
+                            existingPost = DbModelBuilder.BuildPostModel(reader);
+                            existingPost.UserProfile = DbModelBuilder.BuildUserProfile(reader);
 
                             posts.Add(existingPost);
                         }
 
                         if (DbUtils.IsNotDbNull(reader, "CommentId"))
                         {
-                            existingPost.Comments.Add(new Comment()
-                            {
-                                Id = DbUtils.GetInt(reader, "CommentId"),
-                                Message = DbUtils.GetString(reader, "Message"),
-                                PostId = postId,
-                                UserProfileId = DbUtils.GetInt(reader, "CommentUserProfileId")
-                            });
+                            existingPost.Comments.Add(DbModelBuilder.BuildCommentModel(reader));
                         }
                     }
 
@@ -124,64 +92,6 @@ namespace Gifter.Repositories
             }
         }
 
-        /*public Post GetById(int id)
-        {
-            using (var conn = Connection)
-            {
-                conn.Open();
-                using (var cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText = @"
-                                        SELECT  p.Id AS PostId, 
-                                                p.Title, 
-                                                p.Caption, 
-                                                p.DateCreated AS PostDateCreated, 
-                                                p.ImageUrl AS PostImageUrl, 
-                                                p.UserProfileId, 
-                                                up.id AS ProfileId,
-                                                up.Name, 
-                                                up.Bio, 
-                                                up.Email, 
-                                                up.DateCreated AS UserProfileDateCreated, 
-                                                up.ImageUrl AS UserProfileImageUrl
-                                        FROM Post p 
-                                            LEFT JOIN UserProfile up ON p.UserProfileId = up.id
-                                        WHERE p.Id = @Id";
-
-                    DbUtils.AddParameter(cmd, "@Id", id);
-
-                    var reader = cmd.ExecuteReader();
-
-                    Post post = null;
-                    if (reader.Read())
-                    {
-                        post = new Post()
-                        {
-                            Id = id,
-                            Title = DbUtils.GetString(reader, "Title"),
-                            Caption = DbUtils.GetString(reader, "Caption"),
-                            DateCreated = DbUtils.GetDateTime(reader, "PostDateCreated"),
-                            ImageUrl = DbUtils.GetString(reader, "PostImageUrl"),
-                            UserProfileId = DbUtils.GetInt(reader, "UserProfileId"),
-                            UserProfile = new UserProfile
-                            {
-                                Id = DbUtils.GetInt(reader, "ProfileId"),
-                                Name = DbUtils.GetString(reader, "Name"),
-                                Email = DbUtils.GetString(reader, "Email"),
-                                ImageUrl = DbUtils.GetString(reader, "UserProfileImageUrl"),
-                                DateCreated = DbUtils.GetDateTime(reader, "UserProfileDateCreated"),
-                                Bio = DbUtils.GetString(reader, "Bio")
-                            }
-                        };
-                    }
-
-                    reader.Close();
-
-                    return post;
-                }
-            }
-        }*/
-
         //Slim down GetById
         public Post GetById(int id)
         {
@@ -191,21 +101,14 @@ namespace Gifter.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                                        SELECT  p.Id AS PostId, 
-                                                p.Title, 
-                                                p.Caption, 
-                                                p.DateCreated AS PostDateCreated, 
-                                                p.ImageUrl AS PostImageUrl, 
-                                                p.UserProfileId, 
-                                                up.id AS ProfileId,
-                                                up.Name, 
-                                                up.Bio, 
-                                                up.Email, 
-                                                up.DateCreated AS UserProfileDateCreated, 
-                                                up.ImageUrl AS UserProfileImageUrl
-                                        FROM Post p 
-                                            LEFT JOIN UserProfile up ON p.UserProfileId = up.id
-                                        WHERE p.Id = @Id";
+                                        SELECT "
+                                        + PostSqlCommandText
+                                        + ","
+                                        + UserProfileSqlCommandText
+                                        + " FROM Post p"
+                                        + AddUserToPost
+                                        + " WHERE p.Id = @Id";
+
 
                     DbUtils.AddParameter(cmd, "@Id", id);
 
@@ -234,28 +137,17 @@ namespace Gifter.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                                        SELECT  p.Id AS PostId, 
-                                                p.Title, 
-                                                p.Caption, 
-                                                p.DateCreated AS PostDateCreated, 
-                                                p.ImageUrl AS PostImageUrl, 
-                                                p.UserProfileId, 
+                                        SELECT "
+                                    + PostSqlCommandText
+                                    + ","
+                                    + UserProfileSqlCommandText
+                                    + ","
+                                    + CommentSqlCommandText
+                                    + " FROM Post p"
+                                    + AddUserToPost
+                                    + AddComment
+                                    + " WHERE p.Id = @Id";
 
-                                                up.id AS ProfileId,
-                                                up.Name, 
-                                                up.Bio, 
-                                                up.Email, 
-                                                up.DateCreated AS UserProfileDateCreated, 
-                                                up.ImageUrl AS UserProfileImageUrl,
-
-                                                c.Id AS CommentId, 
-                                                c.Message, 
-                                                c.UserProfileId AS CommentUserProfileId,
-                                                c.PostId AS CommentPostId
-                                        FROM Post p 
-                                            LEFT JOIN UserProfile up ON p.UserProfileId = up.id
-                                            LEFT JOIN Comment c on c.PostId = p.id
-                                        WHERE p.Id = @Id";
 
                     DbUtils.AddParameter(cmd, "@Id", id);
 
@@ -290,14 +182,13 @@ namespace Gifter.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     var sql =
-                        @"SELECT p.Id AS PostId, p.Title, p.Caption, p.DateCreated AS PostDateCreated, 
-                        p.ImageUrl AS PostImageUrl, p.UserProfileId,
-
-                        up.Name, up.Bio, up.Email, up.DateCreated AS UserProfileDateCreated, 
-                        up.ImageUrl AS UserProfileImageUrl
-                    FROM Post p 
-                        LEFT JOIN UserProfile up ON p.UserProfileId = up.id
-                    WHERE p.Title LIKE @Criterion OR p.Caption LIKE @Criterion";
+                        @"SELECT "
+                            + PostSqlCommandText
+                            + ","
+                            + UserProfileSqlCommandText
+                            + " FROM Post p"
+                            + AddUserToPost
+                            + " WHERE p.Title LIKE @Criterion OR p.Caption LIKE @Criterion";
 
                     if (sortDescending)
                     {
@@ -391,5 +282,25 @@ namespace Gifter.Repositories
                 }
             }
         }
+        //Sql command text presets
+        private static string PostSqlCommandText => @" p.Id AS PostId, 
+                                                        p.Title, 
+                                                        p.Caption, 
+                                                        p.DateCreated AS PostDateCreated, 
+                                                        p.ImageUrl AS PostImageUrl, 
+                                                        p.UserProfileId";
+        private static string UserProfileSqlCommandText => @" up.id AS ProfileId,
+                                                                up.Name, 
+                                                                up.Bio, 
+                                                                up.Email, 
+                                                                up.DateCreated AS UserProfileDateCreated, 
+                                                                up.ImageUrl AS UserProfileImageUrl";
+        private static string CommentSqlCommandText => @" c.Id AS CommentId, 
+                                                            c.Message, 
+                                                            c.UserProfileId AS CommentUserProfileId,
+                                                            c.PostId AS CommentPostId";
+        private static string AddUserToPost => " LEFT JOIN UserProfile up ON p.UserProfileId = up.id";
+        private static string AddComment => " LEFT JOIN Comment c on c.PostId = p.id";
+
     }
 }
