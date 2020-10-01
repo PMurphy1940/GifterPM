@@ -7,11 +7,11 @@ namespace Gifter.Repositories
     {
         void Add(Post post);
         void Delete(int id);
-        List<Post> GetAll();
+        List<Post> GetAll(bool profile, bool comments);
         List<Post> GetAllWithComments();
         Post GetById(int id);
         Post GetByIdWithComments(int id);
-        List<Post> GetDynamic(string q);
+       // List<Post> GetDynamic(bool profile, bool comments);
         List<Post> Search(string criterion, bool sortDescending);
         void Update(Post post);
     }

@@ -11,7 +11,7 @@ namespace Gifter.Repositories
     {
         public PostRepository(IConfiguration configuration) : base(configuration) { }
 
-        public List<Post> GetAll()
+        /*public List<Post> GetAll()
         {
             using (var conn = Connection)
             {
@@ -42,7 +42,7 @@ namespace Gifter.Repositories
                     return posts;
                 }
             }
-        }
+        }*/
 
         public List<Post> GetAllWithComments()
         {
@@ -91,52 +91,39 @@ namespace Gifter.Repositories
                 }
             }
         }
-        public List<Post> GetDynamic(string q)
+        public List<Post> GetAll(bool profile, bool comments)
         {
             using (var conn = Connection)
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    if (q == null)
-                    {
-                        q = "blank";
-                    }
-                    string[] commands = q.Split("&=");
-                    if (commands.Length == 0)
-                    {
-                        commands[0] = q;
-                    }
+                  
                     cmd.CommandText = @"
                                 SELECT "
                                 + PostSqlCommandText;
 
-                    for (int i=0; i<commands.Length; i++)
-                    {
-                        if (commands[i] == "profile")
+                        if (profile)
                         {
                             cmd.CommandText += ",";
                             cmd.CommandText += UserProfileSqlCommandText;
                         }
-                        else if (commands[i] == "comments")
+                        if (comments)
                         {
                             cmd.CommandText += ",";
                             cmd.CommandText += CommentSqlCommandText;
-                        }
-                    }
-
+                        }                 
                     cmd.CommandText += " FROM Post p";
-                    for (int i = 0; i < commands.Length; i++)
-                    {
-                        if (commands[i] == "profile")
+                    
+                        if (profile)
                         {
                             cmd.CommandText += AddUserToPost;
                         }
-                        else if (commands[i] == "comments")
+                        if (comments)
                         {
                             cmd.CommandText += AddComment;
                         }
-                    }
+                    
                     cmd.CommandText += " ORDER BY p.DateCreated";
  
 
@@ -145,12 +132,26 @@ namespace Gifter.Repositories
                     var posts = new List<Post>();
                     while (reader.Read())
                     {
-                        var aPost = DbModelBuilder.BuildPostModel(reader);
-                        if (commands.Contains("profile"))
+                        var postId = DbUtils.GetInt(reader, "PostId");
+
+                        var existingPost = posts.FirstOrDefault(p => p.Id == postId);
+                        if (existingPost == null)
+                        {
+                            existingPost = DbModelBuilder.BuildPostModel(reader);
+                            if (profile)
+                                {
+                                    existingPost.UserProfile = DbModelBuilder.BuildUserProfile(reader);
+                                }
+
+                            posts.Add(existingPost);
+                        }
+                        if (comments)
+                        {
+                        if (DbUtils.IsNotDbNull(reader, "CommentId"))
                             {
-                                aPost.UserProfile = DbModelBuilder.BuildUserProfile(reader);
+                                existingPost.Comments.Add(DbModelBuilder.BuildCommentModel(reader));
                             }
-                        posts.Add(aPost);
+                        }
                     }
 
                     reader.Close();
