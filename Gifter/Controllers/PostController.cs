@@ -16,7 +16,7 @@ namespace Gifter.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get(string q,bool profile, bool comments, string since)
+        public IActionResult Get(string q, bool profile=true, bool comments=false, DateTime? since=null)
         {
             return Ok(_postRepository.GetAll(q, profile, comments, since));
         }
