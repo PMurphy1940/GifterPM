@@ -1,8 +1,9 @@
 import React, { useEffect, useContext, useState } from "react";
 import { PostContext } from "./PostProvider";
+import "./post.css";
 
 const PostForm = () => {
-    const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [post, setPost] = useState({
     title: "",
     ImageUrl: "",
@@ -13,9 +14,8 @@ const PostForm = () => {
 
   useEffect(() => {
     getAllUsers();
-    setIsLoading(false)
+    setIsLoading(false);
   }, []);
-
 
   const userSelect = () => {
     return (
@@ -37,61 +37,67 @@ const PostForm = () => {
     setPost(stateToChange);
   };
   const submitNewPost = () => {
-      addPost(constructNewPost())
-  }
+    addPost(constructNewPost());
+  };
 
   const constructNewPost = () => {
-      let newPost = {
-        ...post,
-        userProfileId: parseInt(post.userProfileId),
-        dateCreated: new Date()
-      };
-      return newPost;
-  }
+    let newPost = {
+      ...post,
+      userProfileId: parseInt(post.userProfileId),
+      dateCreated: new Date(),
+    };
+    return newPost;
+  };
 
   return (
     <div>
       <h4>Add a Post</h4>
-      <fieldset>
-        <label htmlFor="title">Post Title</label>
-        <input
-          type="text"
-          required
-          onChange={handleFieldChange}
-          id="title"
-          placeholder="Post title"
-        />
-        <label htmlFor="ImageUrl">Image link</label>
-        <input
-          type="text"
-          required
-          onChange={handleFieldChange}
-          id="ImageUrl"
-          placeholder="ImageUrl"
-        />
-        <label htmlFor="caption">Caption</label>
-        <input
-          type="text"
-          onChange={handleFieldChange}
-          id="caption"
-          placeholder="caption"
-        />
-        <select
-          onChange={handleFieldChange}
-          id="userProfileId"
-          placeholder="userProfileId"
-          required
-        >
-          <option htmlFor="userProfileId" value="0">
-            Please tell us who you are. We trust you.
-          </option>
-          {userSelect()}
-        </select>
-        <button
-              type="button"
-              disabled={isLoading}
-              onClick={submitNewPost}
-            >Submit</button>
+      <fieldset className="post__Form__Fields">
+        <div className="input__field">
+          <label htmlFor="title">Post Title</label>
+          <input
+            type="text"
+            required
+            onChange={handleFieldChange}
+            id="title"
+            placeholder="Post title"
+          />
+        </div>
+        <div className="input__field">
+          <label htmlFor="ImageUrl">Image Link</label>
+          <input
+            type="text"
+            required
+            onChange={handleFieldChange}
+            id="ImageUrl"
+            placeholder="Image Link"
+          />
+        </div>
+        <div className="input__field">
+          <label htmlFor="caption">Caption</label>
+          <input
+            type="text"
+            onChange={handleFieldChange}
+            id="caption"
+            placeholder="caption"
+          />
+        </div>
+        <div className="input__field">
+          <select
+            onChange={handleFieldChange}
+            id="userProfileId"
+            placeholder="userProfileId"
+            required
+          >
+            <option htmlFor="userProfileId" value="0">
+              Please tell us who you are. We trust you.
+            </option>
+            {userSelect()}
+          </select>
+        </div>
+        <button className="submit_Button" type="button" disabled={isLoading} onClick={submitNewPost}>
+          Submit
+        </button>
       </fieldset>
     </div>
   );
