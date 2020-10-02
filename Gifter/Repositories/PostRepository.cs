@@ -44,7 +44,7 @@ namespace Gifter.Repositories
             }
         }*/
 
-        public List<Post> GetAllWithComments()
+/*        public List<Post> GetAllWithComments()
         {
             using (var conn = Connection)
             {
@@ -90,8 +90,8 @@ namespace Gifter.Repositories
                     return posts;
                 }
             }
-        }
-        public List<Post> GetAll(bool profile, bool comments)
+        }*/
+        public List<Post> GetAll(string q, bool profile, bool comments, string since)
         {
             using (var conn = Connection)
             {
@@ -122,6 +122,10 @@ namespace Gifter.Repositories
                         if (comments)
                         {
                             cmd.CommandText += AddComment;
+                        }
+                        if (since != null)
+                        {
+                        cmd.CommandText += FromDate(cmd, since);
                         }
                     
                     cmd.CommandText += " ORDER BY p.DateCreated";

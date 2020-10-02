@@ -1,5 +1,7 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Gifter.Utils;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace Gifter.Repositories
 {
@@ -39,5 +41,23 @@ namespace Gifter.Repositories
         protected static string AddUserToPost => " LEFT JOIN UserProfile up ON p.UserProfileId = up.id";
         protected static string AddComment => " LEFT JOIN Comment c on c.PostId = p.id";
         protected static string AddPostToUserProfile => "LEFT JOIN Post p ON p.UserProfileId = up.Id";
+        /// <summary>
+        /// Accepts SqlCommand and a Date in string form
+        /// Verifies the date is compliant then
+        /// Adds @since to command parameters
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="since"></param>
+        /// <returns>SQL command text 'WHERE p.DateCreated <= @since'</returns>
+        protected string FromDate(SqlCommand cmd, string since)
+        {
+            DateTime date;
+            if (DateTime.TryParse(since, out date))
+            {
+            DbUtils.AddParameter(cmd, "@since", date);
+            return " WHERE p.DateCreated >= @since";
+            }
+            return null;
+        }
     }
 }

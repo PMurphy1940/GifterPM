@@ -16,9 +16,9 @@ namespace Gifter.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get(bool profile, bool comments)
+        public IActionResult Get(string q,bool profile, bool comments, string since)
         {
-            return Ok(_postRepository.GetAll(profile, comments));
+            return Ok(_postRepository.GetAll(q, profile, comments, since));
         }
 
         [HttpGet("{id}")]
@@ -32,12 +32,12 @@ namespace Gifter.Controllers
             return Ok(post);
         }
 
-        [HttpGet("GetWithComments")]
+/*        [HttpGet("GetWithComments")]
         public IActionResult GetWithComments()
         {
             var posts = _postRepository.GetAllWithComments();
             return Ok(posts);
-        }
+        }*/
 
      /*   [HttpGet("dynamic")]
         public IActionResult Dynamic(bool profile, bool comments)
