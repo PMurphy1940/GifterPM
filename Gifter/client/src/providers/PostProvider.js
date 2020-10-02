@@ -7,7 +7,7 @@ export const PostProvider = (props) => {
   const [users, setUsers] = useState([]);
 
   const getAllPosts = () => {
-    return fetch("/api/post")
+    return fetch("/api/post?comments=true")
       .then((res) => res.json())
       .then(setPosts);
   };

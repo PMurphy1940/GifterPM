@@ -15,7 +15,7 @@ const PostForm = () => {
     getAllUsers();
     setIsLoading(false)
   }, []);
-  console.log(post);
+
 
   const userSelect = () => {
     return (
