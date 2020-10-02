@@ -146,6 +146,10 @@ namespace Gifter.Repositories
                                 {
                                     existingPost.UserProfile = DbModelBuilder.BuildUserProfile(reader);
                                 }
+                            if (comments)
+                            {
+                                existingPost.Comments = new List<Comment>();
+                            }
 
                             posts.Add(existingPost);
                         }

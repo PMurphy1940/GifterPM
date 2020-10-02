@@ -23,9 +23,7 @@ namespace Gifter.Utils
                 Caption = DbUtils.GetString(reader, "Caption"),
                 DateCreated = DbUtils.GetDateTime(reader, "PostDateCreated"),
                 ImageUrl = DbUtils.GetString(reader, "PostImageUrl"),
-                UserProfileId = DbUtils.GetInt(reader, "UserProfileId"),
-                UserProfile = new UserProfile(),
-                Comments = new List<Comment>()
+                UserProfileId = DbUtils.GetInt(reader, "UserProfileId")                
             };
 
             return post;
