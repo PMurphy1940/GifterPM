@@ -123,11 +123,11 @@ namespace Gifter.Repositories
                     {
                         cmd.CommandText += AddCommentToPost;
                     }
+                    cmd.CommandText += " WHERE IsDeleted = 0";
                     if (since != null)
                     {
                         cmd.CommandText += FromDate(cmd, since);
                     }
-
                     cmd.CommandText += " ORDER BY p.DateCreated";
 
 
@@ -344,7 +344,31 @@ namespace Gifter.Repositories
             }
         }
 
+
+        //Soft Delete//
         public void Delete(int id)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        UPDATE Post
+                           SET IsDeleted = 1                              
+                         WHERE Id = @Id";
+
+
+                    DbUtils.AddParameter(cmd, "@Id", id);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+
+
+        public void HardDelete(int id)
         {
             using (var conn = Connection)
             {

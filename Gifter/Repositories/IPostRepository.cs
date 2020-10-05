@@ -15,5 +15,7 @@ namespace Gifter.Repositories
        // List<Post> GetDynamic(bool profile, bool comments);
         List<Post> Search(string criterion, bool sortDescending);
         void Update(Post post);
+
+        void HardDelete(int id);
     }
 }

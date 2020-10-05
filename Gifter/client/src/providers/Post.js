@@ -1,28 +1,28 @@
 import React from "react";
-import { Card, CardImg, CardBody } from "reactstrap";
+import { Card, CardImg, CardBody, Button } from "reactstrap";
 import Comment from "./Comment"
 
-const Post = ({ post }) => {
+const Post = (props) => {
 
-
+console.log(props)
   return (
     <div className="post_Card">
       <Card className="m-4">
-        <p className="text-left px-2">Posted by: {post.userProfile.name}</p>
-        <CardImg top src={post.imageUrl} alt={post.title} />
+        <p className="text-left px-2">Posted by: {props.post.userProfile.name}</p>
+        <CardImg top src={props.post.imageUrl} alt={props.post.title} />
         <CardBody>
           <p>
-            <strong>{post.title}</strong>
+            <strong>{props.post.title}</strong>
           </p>
-          <p>{post.caption}</p>
+          <p>{props.post.caption}</p>
         </CardBody>
+        <Button variant="primary" onClick={ () => props.handleDelete(props.post.id)}>Delete</Button>
       </Card>
       <div className="comment_Container">
-      {post.comments.map((comment) => 
+      {props.post.comments.map((comment) => 
         <Comment key={comment.id} comment={comment} />
       )}
       </div>
-
     </div>
   );
 };

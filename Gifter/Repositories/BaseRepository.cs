@@ -53,7 +53,7 @@ namespace Gifter.Repositories
         {
 
             DbUtils.AddParameter(cmd, "@since", since);
-            return " WHERE 1=1 AND p.DateCreated >= @since";
+            return " AND p.DateCreated >= @since";
 
         }
     }

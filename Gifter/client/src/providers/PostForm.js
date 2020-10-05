@@ -1,4 +1,6 @@
 import React, { useEffect, useContext, useState } from "react";
+import { Card, CardImg, CardBody } from "reactstrap";
+import Comment from "./Comment";
 import { PostContext } from "./PostProvider";
 import "./post.css";
 
@@ -11,11 +13,28 @@ const PostForm = () => {
     userProfileId: "",
   });
   const { users, getAllUsers, addPost } = useContext(PostContext);
+  const [showPreview, setShowPreview] = useState(false);
+  const [postUserName, setPostUserName] = useState();
+
+  const togglePreview = () => {
+    setShowPreview(!showPreview);
+  };
 
   useEffect(() => {
     getAllUsers();
     setIsLoading(false);
   }, []);
+
+
+  useEffect(() => {
+    if (post.userProfileId !== "") {
+      let selectedUser = users.find((user) => {
+        return user.id === parseInt(post.userProfileId);
+      });
+
+      setPostUserName(selectedUser.name);
+    }
+  }, [post.userProfileId]);
 
   const userSelect = () => {
     return (
@@ -95,10 +114,38 @@ const PostForm = () => {
             {userSelect()}
           </select>
         </div>
-        <button className="submit_Button" type="button" disabled={isLoading} onClick={submitNewPost}>
+        <button
+          className="submit_Button"
+          type="button"
+          disabled={isLoading}
+          onClick={submitNewPost}
+        >
           Submit
         </button>
+        <button
+          className="submit_Button"
+          type="button"
+          disabled={isLoading}
+          onClick={togglePreview}
+        >
+          Show/Hide preview
+        </button>
       </fieldset>
+      {showPreview && (
+        <div className="post_Card">
+          <h4>Preview</h4>
+          <Card className="m-4">
+            {postUserName !== undefined && (
+              <p className="text-left px-2">Posted by: {postUserName}</p>
+            )}
+            <CardImg src={post.ImageUrl} alt={post.title} />
+            <CardBody>
+              <p>{post.title !== undefined && <strong>{post.title}</strong>}</p>
+              {post.caption !== undefined && <p>{post.caption}</p>}
+            </CardBody>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

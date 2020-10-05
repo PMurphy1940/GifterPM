@@ -2,8 +2,13 @@ import React, { useContext, useEffect } from "react";
 import { PostContext } from "../providers/PostProvider";
 import Post from "./Post";
 
-const PostList = () => {
-  const { posts, getAllPosts } = useContext(PostContext);
+const PostList = (props) => {
+  const { posts, getAllPosts, deletePost } = useContext(PostContext);
+
+  const handleDelete = (id) => {
+    deletePost(id);
+    getAllPosts();
+  };
 
   useEffect(() => {
     getAllPosts();
@@ -14,7 +19,7 @@ const PostList = () => {
       <div className="row justify-content-center">
         <div className="cards-column">
           {posts.map((post) => (
-            <Post key={post.id} post={post} />
+            <Post key={post.id} post={post} handleDelete={handleDelete} />
           ))}
         </div>
       </div>
