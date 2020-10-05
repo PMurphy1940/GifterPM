@@ -117,11 +117,11 @@ namespace Gifter.Repositories
 
                     if (profile)
                     {
-                        cmd.CommandText += AddUserToPost;
+                        cmd.CommandText += JoinUserToPost;
                     }
                     if (comments)
                     {
-                        cmd.CommandText += AddCommentToPost;
+                        cmd.CommandText += JoinCommentToPost;
                     }
                     cmd.CommandText += " WHERE IsDeleted = 0";
                     if (since != null)
@@ -181,7 +181,7 @@ namespace Gifter.Repositories
                                         + ","
                                         + UserProfileSqlCommandText
                                         + " FROM Post p"
-                                        + AddUserToPost
+                                        + JoinUserToPost
                                         + " WHERE p.Id = @Id";
 
 
@@ -219,8 +219,8 @@ namespace Gifter.Repositories
                                     + ","
                                     + CommentSqlCommandText
                                     + " FROM Post p"
-                                    + AddUserToPost
-                                    + AddCommentToPost
+                                    + JoinUserToPost
+                                    + JoinCommentToPost
                                     + " WHERE p.Id = @Id";
 
 
@@ -258,11 +258,14 @@ namespace Gifter.Repositories
                 {
                     var sql =
                         @"SELECT "
-                            + PostSqlCommandText
-                            + ","
-                            + UserProfileSqlCommandText
-                            + " FROM Post p"
-                            + AddUserToPost
+                                    + PostSqlCommandText
+                                    + ","
+                                    + UserProfileSqlCommandText
+                                    + ","
+                                    + CommentSqlCommandText
+                                    + " FROM Post p"
+                                    + JoinUserToPost
+                                    + JoinCommentToPost
                             + " WHERE p.Title LIKE @Criterion OR p.Caption LIKE @Criterion";
 
                     if (sortDescending)
@@ -281,9 +284,25 @@ namespace Gifter.Repositories
                     var posts = new List<Post>();
                     while (reader.Read())
                     {
-                        var aPost = DbModelBuilder.BuildPostModel(reader);
-                        aPost.UserProfile = DbModelBuilder.BuildUserProfile(reader);
-                        posts.Add(aPost);
+                        var postId = DbUtils.GetInt(reader, "PostId");
+
+                        var existingPost = posts.FirstOrDefault(p => p.Id == postId);
+                        if (existingPost == null)
+                        {
+                            existingPost = DbModelBuilder.BuildPostModel(reader);
+                                             
+                                existingPost.UserProfile = DbModelBuilder.BuildUserProfile(reader);                         
+                            
+                                existingPost.Comments = new List<Comment>();
+
+                            posts.Add(existingPost);
+                        }
+
+                        if (DbUtils.IsNotDbNull(reader, "CommentId"))
+                        {
+                            existingPost.Comments.Add(DbModelBuilder.BuildCommentModel(reader));
+                        }
+
                     }
 
                     reader.Close();

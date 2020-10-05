@@ -38,9 +38,9 @@ namespace Gifter.Repositories
                                                             c.Message, 
                                                             c.UserProfileId AS CommentUserProfileId,
                                                             c.PostId AS CommentPostId";
-        protected static string AddUserToPost => " LEFT JOIN UserProfile up ON p.UserProfileId = up.id";
-        protected static string AddCommentToPost => " LEFT JOIN Comment c on c.PostId = p.id";
-        protected static string AddPostToUserProfile => "LEFT JOIN Post p ON p.UserProfileId = up.Id";
+        protected static string JoinUserToPost => " LEFT JOIN UserProfile up ON p.UserProfileId = up.id";
+        protected static string JoinCommentToPost => " LEFT JOIN Comment c on c.PostId = p.id";
+        protected static string JoinPostToUserProfile => "LEFT JOIN Post p ON p.UserProfileId = up.Id";
         /// <summary>
         /// Accepts SqlCommand and a Date in string form
         /// Verifies the date is compliant then

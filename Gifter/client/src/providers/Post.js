@@ -4,7 +4,6 @@ import Comment from "./Comment"
 
 const Post = (props) => {
 
-console.log(props)
   return (
     <div className="post_Card">
       <Card className="m-4">

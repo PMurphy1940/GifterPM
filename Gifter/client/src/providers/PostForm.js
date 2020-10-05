@@ -12,7 +12,10 @@ const PostForm = () => {
     caption: "",
     userProfileId: "",
   });
-  const { users, getAllUsers, addPost } = useContext(PostContext);
+  const [search, setSearch] = useState({
+      search: ""
+  })
+  const { users, getAllUsers, addPost, searchPosts } = useContext(PostContext);
   const [showPreview, setShowPreview] = useState(false);
   const [postUserName, setPostUserName] = useState();
 
@@ -24,7 +27,6 @@ const PostForm = () => {
     getAllUsers();
     setIsLoading(false);
   }, []);
-
 
   useEffect(() => {
     if (post.userProfileId !== "") {
@@ -55,6 +57,13 @@ const PostForm = () => {
     stateToChange[event.target.id] = event.target.value;
     setPost(stateToChange);
   };
+  
+  const handleSearchFieldChange = (event) => {
+    const searchToChange = { ...search };
+    searchToChange[event.target.id] = event.target.value;
+    setSearch(searchToChange);
+  };
+
   const submitNewPost = () => {
     addPost(constructNewPost());
   };
@@ -70,6 +79,20 @@ const PostForm = () => {
 
   return (
     <div>
+      <div className="searchFields">
+        <div className="input__field search">
+          <input
+            type="text"
+            required
+            onChange={handleSearchFieldChange}
+            id="search"
+            placeholder="Search for..."
+          />
+        </div>
+        <button className="submit_Button" type="button" onClick={ () => searchPosts(search.search) }>
+          Search Posts
+        </button>
+      </div>
       <h4>Add a Post</h4>
       <fieldset className="post__Form__Fields">
         <div className="input__field">

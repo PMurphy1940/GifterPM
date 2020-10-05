@@ -16,6 +16,13 @@ export const PostProvider = (props) => {
     return fetch("/api/userprofile").then((res) => res.json().then(setUsers));
   };
 
+  const searchPosts = (q) => {
+      console.log(q);
+      return fetch(`/api/post/search/?q=${q}`)
+      .then((response) => response.json())
+      .then(setPosts);
+  };
+
   const addPost = (post) => {
     return fetch("/api/post", {
       method: "POST",
@@ -27,14 +34,14 @@ export const PostProvider = (props) => {
   };
 
   const deletePost = (id) => {
-      return fetch(`/api/post/${id}`, {
-          method: "DELETE"
-      })
-  }
+    return fetch(`/api/post/${id}`, {
+      method: "DELETE",
+    });
+  };
 
   return (
     <PostContext.Provider
-      value={{ users, posts, getAllUsers, getAllPosts, addPost, deletePost }}
+      value={{ users, posts, getAllUsers, getAllPosts, addPost, deletePost, searchPosts }}
     >
       {props.children}
     </PostContext.Provider>
