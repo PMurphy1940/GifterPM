@@ -29,6 +29,7 @@ namespace Gifter.Repositories
                                                         p.ImageUrl AS PostImageUrl, 
                                                         p.UserProfileId";
         protected static string UserProfileSqlCommandText => @" up.id AS ProfileId,
+                                                                up.FirebaseUserId
                                                                 up.Name, 
                                                                 up.Bio, 
                                                                 up.Email, 

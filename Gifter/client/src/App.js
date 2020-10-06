@@ -1,22 +1,19 @@
 import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
 import "./App.css";
+import ApplicationViews from "./components/ApplicationViews";
 import { PostProvider } from "./providers/PostProvider";
-import PostList from "./providers/PostList";
-import PostForm from "./providers/PostForm";
+import Header from "./components/Header";
 
 function App() {
   return (
     <div className="App">
-      <PostProvider>
-        <div className="main_Container">
-          <div className="form">
-            <PostForm />
-          </div>
-          <div className="Post_Scroller">
-            <PostList />
-          </div>
-        </div>
-      </PostProvider>
+      <Router>
+        <PostProvider>
+          <Header />
+          <ApplicationViews />
+        </PostProvider>
+      </Router>
     </div>
   );
 }

@@ -16,9 +16,15 @@ export const PostProvider = (props) => {
     return fetch("/api/userprofile").then((res) => res.json().then(setUsers));
   };
 
+  const getThisUsersPosts = (id) => {};
+
+  const getPost = (id) => {
+    return fetch(`/api/post/getwithcomments/${id}`).then((res) => res.json());
+  };
+
   const searchPosts = (q) => {
-      console.log(q);
-      return fetch(`/api/post/search/?q=${q}`)
+    console.log(q);
+    return fetch(`/api/post/search/?q=${q}`)
       .then((response) => response.json())
       .then(setPosts);
   };
@@ -41,7 +47,17 @@ export const PostProvider = (props) => {
 
   return (
     <PostContext.Provider
-      value={{ users, posts, getAllUsers, getAllPosts, addPost, deletePost, searchPosts }}
+      value={{
+        users,
+        posts,
+        getAllUsers,
+        getAllPosts,
+        addPost,
+        deletePost,
+        searchPosts,
+        getPost,
+        getThisUsersPosts,
+      }}
     >
       {props.children}
     </PostContext.Provider>

@@ -18,9 +18,14 @@ const PostList = (props) => {
     <div className="container">
       <div className="row justify-content-center">
         <div className="cards-column">
-          {posts.map((post) => (
-            <Post key={post.id} post={post} handleDelete={handleDelete} />
-          ))}
+        <h5 className="Center_Me" >We're sorry, there are no posts to display</h5>
+          {posts.length === 0 ? (
+            <h5 className="Center_Me" >We're sorry, there are no posts to display</h5>
+          ) : (
+            posts.map((post) => (
+              <Post key={post.id} post={post} handleDelete={handleDelete} />
+            ))
+          )}
         </div>
       </div>
     </div>

@@ -50,3 +50,7 @@
   width: 50%;
   border: 1px black solid;
 }
+
+.Center_Me {
+    align-items: center;
+}

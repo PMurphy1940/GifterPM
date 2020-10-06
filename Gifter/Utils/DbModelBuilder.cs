@@ -39,6 +39,7 @@ namespace Gifter.Utils
             var profile = new UserProfile
             {
                 Id = DbUtils.GetInt(reader, "ProfileId"),
+                FirebaseUserId = DbUtils.GetString(reader, "FirebaseUserId"),
                 Name = DbUtils.GetString(reader, "Name"),
                 Email = DbUtils.GetString(reader, "Email"),
                 ImageUrl = DbUtils.GetString(reader, "UserProfileImageUrl"),

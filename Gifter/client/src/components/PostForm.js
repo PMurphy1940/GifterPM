@@ -1,10 +1,12 @@
 import React, { useEffect, useContext, useState } from "react";
 import { Card, CardImg, CardBody } from "reactstrap";
 import Comment from "./Comment";
-import { PostContext } from "./PostProvider";
+import { useHistory } from "react-router-dom";
+import { PostContext } from "../providers/PostProvider";
 import "./post.css";
 
 const PostForm = () => {
+  const { users, getAllUsers, addPost, searchPosts } = useContext(PostContext);
   const [isLoading, setIsLoading] = useState(true);
   const [post, setPost] = useState({
     title: "",
@@ -15,9 +17,9 @@ const PostForm = () => {
   const [search, setSearch] = useState({
       search: ""
   })
-  const { users, getAllUsers, addPost, searchPosts } = useContext(PostContext);
   const [showPreview, setShowPreview] = useState(false);
   const [postUserName, setPostUserName] = useState();
+  const history = useHistory();
 
   const togglePreview = () => {
     setShowPreview(!showPreview);
@@ -65,7 +67,10 @@ const PostForm = () => {
   };
 
   const submitNewPost = () => {
-    addPost(constructNewPost());
+    addPost(constructNewPost()).then(() =>{
+      history.push("/");
+    })
+
   };
 
   const constructNewPost = () => {
