@@ -7,9 +7,16 @@ export const PostProvider = (props) => {
   const [users, setUsers] = useState([]);
 
   const getAllPosts = () => {
-    return fetch("/api/post?comments=true")
-      .then((res) => res.json())
-      .then(setPosts);
+    getToken().then((token) =>
+      fetch("/api/post?comments=true", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then(setPosts)
+    );
   };
 
   const getAllUsers = () => {
@@ -19,30 +26,65 @@ export const PostProvider = (props) => {
   const getThisUsersPosts = (id) => {};
 
   const getPost = (id) => {
-    return fetch(`/api/post/getwithcomments/${id}`).then((res) => res.json());
+    getToken().then((token) =>
+      fetch(`/api/post/getwithcomments/${id}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }).then((res) => res.json())
+    );
   };
 
   const searchPosts = (q) => {
-    console.log(q);
-    return fetch(`/api/post/search/?q=${q}`)
-      .then((response) => response.json())
-      .then(setPosts);
+    getToken().then((token) =>
+      fetch(`/api/post/search/?q=${q}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((response) => response.json())
+        .then(setPosts)
+    );
   };
 
   const addPost = (post) => {
-    return fetch("/api/post", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(post),
-    });
+    getToken()
+      .then((token) =>
+        fetch("/api/post", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(post),
+        })
+      )
+      .then((response) => {
+        if (response.ok) {
+          return resp.json();
+        }
+        throw new Error("Unauthorized");
+      });
   };
 
   const deletePost = (id) => {
-    return fetch(`/api/post/${id}`, {
-      method: "DELETE",
-    });
+    getToken()
+      .then((token) =>
+        fetch(`/api/post/${id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+      )
+      .then((response) => {
+        if (response.ok) {
+          return resp.json();
+        }
+        throw new Error("Unauthorized");
+      });
   };
 
   return (
