@@ -45,6 +45,20 @@ namespace Gifter.Tests
 
             Assert.Equal(testUserId, actualUser.Id);
         }
+
+        [Fact]
+        public void Post_Method_Adds_New_User()
+        {
+            var userCount = 10;
+            var users = CreateTestUsers(userCount);
+
+            var repo = new InMemoryUserProfileRepository(users);
+            var controller = new UserProfileController(repo);
+
+            controller.Post(CreateTestUsers(1)[0]);
+
+            Assert.Equal(userCount + 1, repo.InternalData.Count);
+        }
         private List<UserProfile> CreateTestUsers(int count)
         {
             var users = new List<UserProfile>();
