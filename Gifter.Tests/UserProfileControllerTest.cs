@@ -27,8 +27,23 @@ namespace Gifter.Tests
 
             Assert.Equal(userCount, actualUsers.Count);
             Assert.Equal(users, actualUsers);
+        }
+        [Fact]
+        public void Get_Returns_User_By_Id()
+        {
+            var testUserId = 999;
+            var users = CreateTestUsers(5);
+            users[0].Id = testUserId;
 
+            var repo = new InMemoryUserProfileRepository(users);
+            var controller = new UserProfileController(repo);
 
+            var result = controller.Get(testUserId);
+
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var actualUser = Assert.IsType<UserProfile>(okResult.Value);
+
+            Assert.Equal(testUserId, actualUser.Id);
         }
         private List<UserProfile> CreateTestUsers(int count)
         {
