@@ -20,7 +20,7 @@ namespace Gifter.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(_postRepository.Get());
+            return Ok(_postRepository.GetAll());
         }
         [HttpGet]
         public IActionResult Get(string q, bool profile=true, bool comments=false, DateTime? since=null)

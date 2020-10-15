@@ -8,7 +8,7 @@ namespace Gifter.Repositories
     {
         void Add(Post post);
         void Delete(int id);
-        List<Post> Get();
+        List<Post> GetAll();
         List<Post> GetAll(string q, bool profile, bool comments, DateTime? since);
        // List<Post> GetAllWithComments();
         Post GetById(int id);

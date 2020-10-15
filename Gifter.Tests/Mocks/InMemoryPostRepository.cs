@@ -52,7 +52,7 @@ namespace Gifter.Tests.Mocks
             _data.Remove(postTodelete);
         }
 
-        public List<Post> Get()
+        public List<Post> GetAll()
         {
             return _data;
         }

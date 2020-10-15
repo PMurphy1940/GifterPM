@@ -11,7 +11,7 @@ namespace Gifter.Repositories
     {
         public PostRepository(IConfiguration configuration) : base(configuration) { }
 
-        public List<Post> Get()
+        public List<Post> GetAll()
         {
             using (var conn = Connection)
             {
