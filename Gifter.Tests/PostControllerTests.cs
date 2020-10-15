@@ -179,6 +179,38 @@ namespace Gifter.Tests
             Assert.Null(postFromDb);
         }
 
+        [Fact]
+        public void Search_Post_Returns_Result()
+        {
+            var postCount = 20;
+            var posts = CreateTestPosts(postCount);
+
+            var repo = new InMemoryPostRepository(posts);
+            var controller = new PostController(repo);
+            var testString = "Cheesy Poofs";
+
+            // Act
+            var newPost = new Post()
+            {
+                Caption = "Cheesy Poofs",
+                Title = "Title",
+                ImageUrl = "http://post.image.url/",
+                DateCreated = DateTime.Today,
+                UserProfileId = 999,
+                UserProfile = CreateTestUserProfile(999),
+            };
+
+            controller.Post(newPost);
+            var resultSearch = controller.Search(testString);
+            Assert.NotNull(resultSearch);
+            var okResult = Assert.IsType<OkObjectResult>(resultSearch);
+            var actualPosts = Assert.IsType<List<Post>>(okResult.Value);
+
+            Assert.Equal(actualPosts[0].Caption, testString);
+
+
+        }
+
         private List<Post> CreateTestPosts(int count)
         {
             var posts = new List<Post>();

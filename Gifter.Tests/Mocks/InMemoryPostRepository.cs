@@ -84,7 +84,9 @@ namespace Gifter.Tests.Mocks
 
         public List<Post> Search(string criterion, bool sortDescending)
         {
-            throw new NotImplementedException();
+            var posts = new List<Post>(_data.Where(p => p.Caption.Contains("Cheesy Poofs")));
+            return posts;
+
         }
 
         public List<Post> GetAllWithComments()
