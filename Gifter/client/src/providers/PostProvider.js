@@ -11,7 +11,7 @@ export const PostProvider = (props) => {
       fetch("/api/post?comments=true", {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
       })
         .then((res) => res.json())
@@ -98,7 +98,7 @@ export const PostProvider = (props) => {
         deletePost,
         searchPosts,
         getPost,
-        getThisUsersPosts,
+        getThisUsersPosts
       }}
     >
       {props.children}
