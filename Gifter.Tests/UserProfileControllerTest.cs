@@ -91,7 +91,20 @@ namespace Gifter.Tests
             Assert.Equal(userToUpdate.Bio, userFromDb.Bio);
         }
 
+        [Fact]
+        public void Delete_Method_Removes_User()
+        {
+            var testUserId = 999;
+            var users = CreateTestUsers(5);
+            users[0].Id = testUserId;
 
+            var repo = new InMemoryUserProfileRepository(users);
+            var controller = new UserProfileController(repo);
+
+            controller.Delete(testUserId);
+
+            Assert.Null(repo.InternalData.FirstOrDefault(u => u.Id == testUserId));
+        }
         private List<UserProfile> CreateTestUsers(int count)
         {
             var users = new List<UserProfile>();
