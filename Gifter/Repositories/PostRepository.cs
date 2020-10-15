@@ -11,7 +11,7 @@ namespace Gifter.Repositories
     {
         public PostRepository(IConfiguration configuration) : base(configuration) { }
 
-        /*public List<Post> GetAll()
+        public List<Post> Get()
         {
             using (var conn = Connection)
             {
@@ -19,12 +19,12 @@ namespace Gifter.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                                SELECT " 
-                                    + PostSqlCommandText 
-                                    + "," 
-                                    + UserProfileSqlCommandText 
-                                    + " FROM Post p" 
-                                    + AddUserToPost
+                                SELECT "
+                                    + PostSqlCommandText
+                                    + ","
+                                    + UserProfileSqlCommandText
+                                    + " FROM Post p"
+                                    + JoinUserToPost
                                     + " ORDER BY p.DateCreated";
 
                     var reader = cmd.ExecuteReader();
@@ -42,7 +42,7 @@ namespace Gifter.Repositories
                     return posts;
                 }
             }
-        }*/
+        }
 
         /*        public List<Post> GetAllWithComments()
                 {
