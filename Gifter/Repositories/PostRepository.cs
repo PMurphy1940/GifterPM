@@ -11,7 +11,7 @@ namespace Gifter.Repositories
     {
         public PostRepository(IConfiguration configuration) : base(configuration) { }
 
-        /*public List<Post> GetAll()
+        public List<Post> GetAll()
         {
             using (var conn = Connection)
             {
@@ -19,12 +19,12 @@ namespace Gifter.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                                SELECT " 
-                                    + PostSqlCommandText 
-                                    + "," 
-                                    + UserProfileSqlCommandText 
-                                    + " FROM Post p" 
-                                    + AddUserToPost
+                                SELECT "
+                                    + PostSqlCommandText
+                                    + ","
+                                    + UserProfileSqlCommandText
+                                    + " FROM Post p"
+                                    + JoinUserToPost
                                     + " ORDER BY p.DateCreated";
 
                     var reader = cmd.ExecuteReader();
@@ -42,94 +42,94 @@ namespace Gifter.Repositories
                     return posts;
                 }
             }
-        }*/
+        }
 
-/*        public List<Post> GetAllWithComments()
-        {
-            using (var conn = Connection)
-            {
-                conn.Open();
-                using (var cmd = conn.CreateCommand())
+        /*        public List<Post> GetAllWithComments()
                 {
-                    cmd.CommandText = @"
-                                    SELECT "
-                                    + PostSqlCommandText
-                                    + ","
-                                    + UserProfileSqlCommandText
-                                    + ","
-                                    + CommentSqlCommandText
-                                    + " FROM Post p"
-                                    + AddUserToPost
-                                    + AddComment
-                                    + " ORDER BY p.DateCreated";
-
-                    var reader = cmd.ExecuteReader();
-
-                    var posts = new List<Post>();
-                    while (reader.Read())
+                    using (var conn = Connection)
                     {
-                        var postId = DbUtils.GetInt(reader, "PostId");
-
-                        var existingPost = posts.FirstOrDefault(p => p.Id == postId);
-                        if (existingPost == null)
+                        conn.Open();
+                        using (var cmd = conn.CreateCommand())
                         {
-                            existingPost = DbModelBuilder.BuildPostModel(reader);
-                            existingPost.UserProfile = DbModelBuilder.BuildUserProfile(reader);
+                            cmd.CommandText = @"
+                                            SELECT "
+                                            + PostSqlCommandText
+                                            + ","
+                                            + UserProfileSqlCommandText
+                                            + ","
+                                            + CommentSqlCommandText
+                                            + " FROM Post p"
+                                            + AddUserToPost
+                                            + AddComment
+                                            + " ORDER BY p.DateCreated";
 
-                            posts.Add(existingPost);
-                        }
+                            var reader = cmd.ExecuteReader();
 
-                        if (DbUtils.IsNotDbNull(reader, "CommentId"))
-                        {
-                            existingPost.Comments.Add(DbModelBuilder.BuildCommentModel(reader));
+                            var posts = new List<Post>();
+                            while (reader.Read())
+                            {
+                                var postId = DbUtils.GetInt(reader, "PostId");
+
+                                var existingPost = posts.FirstOrDefault(p => p.Id == postId);
+                                if (existingPost == null)
+                                {
+                                    existingPost = DbModelBuilder.BuildPostModel(reader);
+                                    existingPost.UserProfile = DbModelBuilder.BuildUserProfile(reader);
+
+                                    posts.Add(existingPost);
+                                }
+
+                                if (DbUtils.IsNotDbNull(reader, "CommentId"))
+                                {
+                                    existingPost.Comments.Add(DbModelBuilder.BuildCommentModel(reader));
+                                }
+                            }
+
+                            reader.Close();
+
+                            return posts;
                         }
                     }
-
-                    reader.Close();
-
-                    return posts;
-                }
-            }
-        }*/
-        public List<Post> GetAll(string q, bool profile, bool comments, string since)
+                }*/
+        public List<Post> GetAll(string q, bool profile, bool comments, DateTime? since)
         {
             using (var conn = Connection)
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                  
+
                     cmd.CommandText = @"
                                 SELECT "
                                 + PostSqlCommandText;
 
-                        if (profile)
-                        {
-                            cmd.CommandText += ",";
-                            cmd.CommandText += UserProfileSqlCommandText;
-                        }
-                        if (comments)
-                        {
-                            cmd.CommandText += ",";
-                            cmd.CommandText += CommentSqlCommandText;
-                        }                 
+                    if (profile)
+                    {
+                        cmd.CommandText += ",";
+                        cmd.CommandText += UserProfileSqlCommandText;
+                    }
+                    if (comments)
+                    {
+                        cmd.CommandText += ",";
+                        cmd.CommandText += CommentSqlCommandText;
+                    }
                     cmd.CommandText += " FROM Post p";
-                    
-                        if (profile)
-                        {
-                            cmd.CommandText += AddUserToPost;
-                        }
-                        if (comments)
-                        {
-                            cmd.CommandText += AddComment;
-                        }
-                        if (since != null)
-                        {
+
+                    if (profile)
+                    {
+                        cmd.CommandText += JoinUserToPost;
+                    }
+                    if (comments)
+                    {
+                        cmd.CommandText += JoinCommentToPost;
+                    }
+                    cmd.CommandText += " WHERE IsDeleted = 0";
+                    if (since != null)
+                    {
                         cmd.CommandText += FromDate(cmd, since);
-                        }
-                    
+                    }
                     cmd.CommandText += " ORDER BY p.DateCreated";
- 
+
 
                     var reader = cmd.ExecuteReader();
 
@@ -143,9 +143,9 @@ namespace Gifter.Repositories
                         {
                             existingPost = DbModelBuilder.BuildPostModel(reader);
                             if (profile)
-                                {
-                                    existingPost.UserProfile = DbModelBuilder.BuildUserProfile(reader);
-                                }
+                            {
+                                existingPost.UserProfile = DbModelBuilder.BuildUserProfile(reader);
+                            }
                             if (comments)
                             {
                                 existingPost.Comments = new List<Comment>();
@@ -153,13 +153,12 @@ namespace Gifter.Repositories
 
                             posts.Add(existingPost);
                         }
-                        if (comments)
-                        {
-                        if (DbUtils.IsNotDbNull(reader, "CommentId"))
+                      
+                            if (comments && DbUtils.IsNotDbNull(reader, "CommentId"))
                             {
                                 existingPost.Comments.Add(DbModelBuilder.BuildCommentModel(reader));
                             }
-                        }
+                        
                     }
 
                     reader.Close();
@@ -182,7 +181,7 @@ namespace Gifter.Repositories
                                         + ","
                                         + UserProfileSqlCommandText
                                         + " FROM Post p"
-                                        + AddUserToPost
+                                        + JoinUserToPost
                                         + " WHERE p.Id = @Id";
 
 
@@ -195,7 +194,7 @@ namespace Gifter.Repositories
                     {
                         post = DbModelBuilder.BuildPostModel(reader);
                         post.UserProfile = DbModelBuilder.BuildUserProfile(reader);
-                        
+
                     }
 
                     reader.Close();
@@ -220,8 +219,8 @@ namespace Gifter.Repositories
                                     + ","
                                     + CommentSqlCommandText
                                     + " FROM Post p"
-                                    + AddUserToPost
-                                    + AddComment
+                                    + JoinUserToPost
+                                    + JoinCommentToPost
                                     + " WHERE p.Id = @Id";
 
 
@@ -240,7 +239,7 @@ namespace Gifter.Repositories
                         if (DbUtils.IsNotDbNull(reader, "CommentId"))
                         {
                             post.Comments.Add(DbModelBuilder.BuildCommentModel(reader));
-                        }                        
+                        }
                     }
 
                     reader.Close();
@@ -259,11 +258,14 @@ namespace Gifter.Repositories
                 {
                     var sql =
                         @"SELECT "
-                            + PostSqlCommandText
-                            + ","
-                            + UserProfileSqlCommandText
-                            + " FROM Post p"
-                            + AddUserToPost
+                                    + PostSqlCommandText
+                                    + ","
+                                    + UserProfileSqlCommandText
+                                    + ","
+                                    + CommentSqlCommandText
+                                    + " FROM Post p"
+                                    + JoinUserToPost
+                                    + JoinCommentToPost
                             + " WHERE p.Title LIKE @Criterion OR p.Caption LIKE @Criterion";
 
                     if (sortDescending)
@@ -282,9 +284,25 @@ namespace Gifter.Repositories
                     var posts = new List<Post>();
                     while (reader.Read())
                     {
-                        var aPost = DbModelBuilder.BuildPostModel(reader);
-                        aPost.UserProfile = DbModelBuilder.BuildUserProfile(reader);
-                        posts.Add(aPost);                        
+                        var postId = DbUtils.GetInt(reader, "PostId");
+
+                        var existingPost = posts.FirstOrDefault(p => p.Id == postId);
+                        if (existingPost == null)
+                        {
+                            existingPost = DbModelBuilder.BuildPostModel(reader);
+                                             
+                                existingPost.UserProfile = DbModelBuilder.BuildUserProfile(reader);                         
+                            
+                                existingPost.Comments = new List<Comment>();
+
+                            posts.Add(existingPost);
+                        }
+
+                        if (DbUtils.IsNotDbNull(reader, "CommentId"))
+                        {
+                            existingPost.Comments.Add(DbModelBuilder.BuildCommentModel(reader));
+                        }
+
                     }
 
                     reader.Close();
@@ -345,7 +363,31 @@ namespace Gifter.Repositories
             }
         }
 
+
+        //Soft Delete//
         public void Delete(int id)
+        {
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        UPDATE Post
+                           SET IsDeleted = 1                              
+                         WHERE Id = @Id";
+
+
+                    DbUtils.AddParameter(cmd, "@Id", id);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+
+
+        public void HardDelete(int id)
         {
             using (var conn = Connection)
             {

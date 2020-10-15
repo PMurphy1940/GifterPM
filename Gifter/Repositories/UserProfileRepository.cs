@@ -173,6 +173,38 @@ namespace Gifter.Repositories
                 }
             }
         }
+
+        public UserProfile GetByFirebaseUserId(string firebaseUserId)
+        {
+            using(var conn = Connection)
+            {
+                conn.Open();
+                using( var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                                        SELECT"
+                                        + UserProfileSqlCommandText;
+                    cmd.CommandText += "From UserProfile up" +
+                        "               WHERE up.firebaseUserId LIKE @firebaseUserId";
+
+                    DbUtils.AddParameter(cmd, "@FirebaseUserId", firebaseUserId);
+
+                    var reader = cmd.ExecuteReader();
+
+                    UserProfile user = null;
+
+                    if (reader.Read())
+                    {
+                        user = DbModelBuilder.BuildUserProfile(reader);
+                    }
+
+                    reader.Close();
+
+                    return user;
+                }
+            }
+
+        }
         public void Add(UserProfile profile)
         {
             using (var conn = Connection)
@@ -181,10 +213,11 @@ namespace Gifter.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                                        INSERT INTO UserProfile (Name, Email, ImageUrl, Bio, DateCreated)
+                                        INSERT INTO UserProfile (FirebaseUserId, Name, Email, ImageUrl, Bio, DateCreated)
                                         OUTPUT INSERTED.Id
-                                        VALUES (@Name, @Email, @ImageUrl, @Bio, @DateCreated)
+                                        VALUES (@FirebaseUserId, @Name, @Email, @ImageUrl, @Bio, @DateCreated)
                                         ";
+                    DbUtils.AddParameter(cmd, "@FirebaseUserId", profile.FirebaseUserId);
                     DbUtils.AddParameter(cmd, "@Name", profile.Name);
                     DbUtils.AddParameter(cmd, "@Email", profile.Email);
                     DbUtils.AddParameter(cmd, "@ImageUrl", profile.ImageUrl);

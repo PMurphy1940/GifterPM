@@ -29,6 +29,7 @@ namespace Gifter.Repositories
                                                         p.ImageUrl AS PostImageUrl, 
                                                         p.UserProfileId";
         protected static string UserProfileSqlCommandText => @" up.id AS ProfileId,
+                                                                up.FirebaseUserId
                                                                 up.Name, 
                                                                 up.Bio, 
                                                                 up.Email, 
@@ -38,9 +39,9 @@ namespace Gifter.Repositories
                                                             c.Message, 
                                                             c.UserProfileId AS CommentUserProfileId,
                                                             c.PostId AS CommentPostId";
-        protected static string AddUserToPost => " LEFT JOIN UserProfile up ON p.UserProfileId = up.id";
-        protected static string AddComment => " LEFT JOIN Comment c on c.PostId = p.id";
-        protected static string AddPostToUserProfile => "LEFT JOIN Post p ON p.UserProfileId = up.Id";
+        protected static string JoinUserToPost => " LEFT JOIN UserProfile up ON p.UserProfileId = up.id";
+        protected static string JoinCommentToPost => " LEFT JOIN Comment c on c.PostId = p.id";
+        protected static string JoinPostToUserProfile => "LEFT JOIN Post p ON p.UserProfileId = up.Id";
         /// <summary>
         /// Accepts SqlCommand and a Date in string form
         /// Verifies the date is compliant then
@@ -49,15 +50,12 @@ namespace Gifter.Repositories
         /// <param name="cmd"></param>
         /// <param name="since"></param>
         /// <returns>SQL command text 'WHERE p.DateCreated <= @since'</returns>
-        protected string FromDate(SqlCommand cmd, string since)
+        protected string FromDate(SqlCommand cmd, DateTime? since)
         {
-            DateTime date;
-            if (DateTime.TryParse(since, out date))
-            {
-            DbUtils.AddParameter(cmd, "@since", date);
-            return " WHERE p.DateCreated >= @since";
-            }
-            return null;
+
+            DbUtils.AddParameter(cmd, "@since", since);
+            return " AND p.DateCreated >= @since";
+
         }
     }
 }
