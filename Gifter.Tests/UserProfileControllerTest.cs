@@ -59,6 +59,39 @@ namespace Gifter.Tests
 
             Assert.Equal(userCount + 1, repo.InternalData.Count);
         }
+
+        [Fact]
+        public void Put_Method_Updates_User()
+        {
+            var testUserId = 999;
+            var users = CreateTestUsers(5);
+            users[0].Id = testUserId;
+
+            var repo = new InMemoryUserProfileRepository(users);
+            var controller = new UserProfileController(repo);
+
+            var userToUpdate = new UserProfile()
+            {
+                Id = testUserId,
+                Name = $"Updated",
+                Email = $"Updated@bob.comx",
+                ImageUrl = "http://post.image.url",
+                DateCreated = DateTime.Today,
+                Bio = $"Bob really hates cheese",
+            };
+
+            controller.Put(testUserId, userToUpdate);
+
+            var userFromDb = repo.InternalData.FirstOrDefault(user => user.Id == testUserId);
+            Assert.NotNull(userFromDb);
+            Assert.Equal(userToUpdate.Name, userFromDb.Name);
+            Assert.Equal(userToUpdate.Email, userFromDb.Email);
+            Assert.Equal(userToUpdate.ImageUrl, userFromDb.ImageUrl);
+            Assert.Equal(userToUpdate.DateCreated, userFromDb.DateCreated);
+            Assert.Equal(userToUpdate.Bio, userFromDb.Bio);
+        }
+
+
         private List<UserProfile> CreateTestUsers(int count)
         {
             var users = new List<UserProfile>();
